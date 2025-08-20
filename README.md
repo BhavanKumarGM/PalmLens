@@ -9,8 +9,8 @@ The dataset consists of human palm images collected from staff and students of R
      
 # Data Distribution :
 The dataset is divided into two classes: male and female. The distribution of images among the classes are as follows:
-Male palms: 400 images (200 subjects, with one image from each hand)
-Female palms: 400 images (200 subjects, with one image from each hand)
+1.Male palms: 400 images (200 subjects, with one image from each hand)
+2.Female palms: 400 images (200 subjects, with one image from each hand)
      
 # Image Capture Details
 Camera:
