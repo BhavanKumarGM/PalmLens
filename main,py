@@ -1,0 +1,51 @@
+import cv2
+import numpy as np
+import tensorflow as tf
+
+# Load the trained model
+model = tf.keras.models.load_model("palm_gender_model.h5")
+
+# Labels
+labels = ["Female", "Male"]  # Adjust order if needed after checking class_indices
+
+# Start webcam
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # Show a rectangle to guide palm position
+    h, w, _ = frame.shape
+    start_x, start_y = w//4, h//4
+    end_x, end_y = w*3//4, h*3//4
+    cv2.rectangle(frame, (start_x, start_y), (end_x, end_y), (0, 255, 0), 2)
+
+    # Extract ROI (Region of Interest) inside the rectangle
+    roi = frame[start_y:end_y, start_x:end_x]
+
+    # Preprocess ROI
+    roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)  # grayscale
+    roi = cv2.resize(roi, (128, 128))            # match training size
+    roi = roi / 255.0                            # normalize
+    roi = np.expand_dims(roi, axis=-1)           # add channel dimension
+    roi = np.expand_dims(roi, axis=0)            # add batch dimension
+
+    # Predict
+    prediction = model.predict(roi, verbose=0)[0][0]
+    label = labels[int(round(prediction))]  # 0 or 1 based on threshold
+
+    # Show prediction
+    cv2.putText(frame, f"Gender: {label}", (30, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+    # Display frame
+    cv2.imshow("Palm Scan", frame)
+
+    # Exit on 'q'
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
